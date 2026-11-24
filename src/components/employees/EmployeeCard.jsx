@@ -1,7 +1,8 @@
 import { Fragment } from 'react'
 import Badge from '../common/Badge.jsx'
+import Button from '../common/Button.jsx'
 
-function EmployeeCard({ name, role, department, email, onLeave }) {
+function EmployeeCard({ id, name, role, department, email, onLeave, onViewProfile }) {
   const details = [
     { label: 'Department', value: department },
     { label: 'Email', value: email },
@@ -21,6 +22,11 @@ function EmployeeCard({ name, role, department, email, onLeave }) {
           </Fragment>
         ))}
       </dl>
+      <div className="employee-card__actions">
+        <Button variant="secondary" onClick={() => onViewProfile(id)}>
+          View profile
+        </Button>
+      </div>
     </article>
   )
 }

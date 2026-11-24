@@ -213,3 +213,44 @@ body {
   color: #7b8794;
   margin: 0;
 }
+
+.btn {
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn--primary {
+  background-color: #3e7bfa;
+  color: #fff;
+}
+
+.btn--primary:hover {
+  background-color: #2f66d8;
+}
+
+.btn--secondary {
+  background-color: #e4e7eb;
+  color: #1f2933;
+}
+
+.btn--secondary:hover {
+  background-color: #cbd2d9;
+}
+
+.search-input {
+  width: 100%;
+  max-width: 320px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  border: 1px solid #cbd2d9;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.employee-card__actions {
+  margin-top: 14px;
+}

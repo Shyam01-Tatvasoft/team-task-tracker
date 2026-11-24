@@ -1,7 +1,8 @@
 import EmployeeCard from './EmployeeCard.jsx'
 import EmptyState from '../common/EmptyState.jsx'
+import SearchInput from '../common/SearchInput.jsx'
 
-function EmployeeList({ employees, isLoading = false }) {
+function EmployeeList({ employees, isLoading = false, onViewProfile, onSearchChange }) {
   if (isLoading) {
     return <p className="loading-text">Loading team members...</p>
   }
@@ -19,6 +20,10 @@ function EmployeeList({ employees, isLoading = false }) {
 
   return (
     <>
+      <SearchInput
+        placeholder="Search by name..."
+        onSearchChange={onSearchChange}
+      />
       <p className="employee-count">
         {count} team {count === 1 ? 'member' : 'members'}
       </p>
@@ -26,11 +31,13 @@ function EmployeeList({ employees, isLoading = false }) {
         {employees.map((employee) => (
           <EmployeeCard
             key={employee.id}
+            id={employee.id}
             name={employee.name}
             role={employee.role}
             department={employee.department}
             email={employee.email}
             onLeave={employee.onLeave}
+            onViewProfile={onViewProfile}
           />
         ))}
       </div>

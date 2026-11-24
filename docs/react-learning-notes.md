@@ -114,3 +114,25 @@
 1. *Why does `{count && <X />}` show `0`?* `&&` returns the left operand when it's falsy, and React renders the number `0` as text. Use `count > 0 && <X />` or a ternary.
 2. *Difference between `||` and `??`?* `||` falls back on any falsy value (`0`, `''`, `false`). `??` falls back only on `null`/`undefined`, so it preserves `0` and empty strings.
 3. *What happens to component state when it's conditionally removed?* It unmounts and its state is destroyed. When it is rendered again, it mounts fresh with initial state. CSS hiding keeps it mounted and preserves state.
+
+### Step 6: Events and Component Communication
+
+**What:** Events are handled via camelCase props (`onClick`, `onChange`) that receive a function. To communicate child → parent, the parent passes a callback prop and the child calls it with data.
+
+**How it works:** React wraps native events in a SyntheticEvent and calls your handler. Props flow down; callbacks carry data up. The parent owns the logic, the child just reports what happened.
+
+**Implemented:** `Button`, `SearchInput`, "View profile" button on `EmployeeCard`, and `handleViewProfile` / `handleSearchChange` in `App` (logged to console for now).
+
+**Use when:** Any user interaction; child needs to notify the parent.
+**Avoid:** Calling handlers during render, deep callback chains (prop drilling), unnecessary `stopPropagation`.
+
+**Common mistakes:**
+- `onClick={fn()}` instead of `onClick={fn}` or `() => fn(arg)`.
+- Forgetting the arrow wrapper when passing arguments.
+- Missing `type="button"` on buttons inside forms.
+- Expecting UI to change without state.
+
+**Interview Q&A:**
+1. *What is a SyntheticEvent?* React's cross-browser wrapper around native events with the same interface (`target`, `preventDefault`, etc.). Since React 17 events are not pooled.
+2. *How does a child send data to its parent?* The parent passes a function via props; the child calls it with the data as arguments.
+3. *Why `onClick={() => fn(id)}` instead of `onClick={fn(id)}`?* The latter calls `fn` during render and passes its return value as the handler. The arrow function defers the call until the click.
