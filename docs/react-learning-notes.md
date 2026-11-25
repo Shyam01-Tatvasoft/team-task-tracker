@@ -184,3 +184,26 @@
 1. *Why must React state be immutable?* React detects changes by reference comparison. In-place mutation keeps the reference, so React can't tell anything changed and skips rendering. Immutability also makes memoization and effect dependencies reliable.
 2. *How do you update one item inside an array in state?* Use `map`: return `{ ...item, field: newValue }` for the matching id and the original item for the others. `setItems(items.map(...))`.
 3. *Is the spread operator a deep copy?* No, it is shallow: it copies top-level properties and shares nested objects. For nested updates, spread each level you change (or use a library like Immer).
+
+### Step 3: Functional Updates and Batching
+
+**What:** `setState(prev => next)` computes the next state from the latest queued value. Batching groups all `setState` calls from one handler into a single re-render.
+
+**How it works:** React queues updates during an event handler, then processes them in order, passing each updater the result of the previous one. A direct value (`setX(x + 1)`) uses the render's snapshot, so repeated calls overwrite each other. Since React 18, batching also applies in promises, timeouts and native events.
+
+**Implemented:** Handlers converted to `prev =>` form, "Add all hires" (multiple updates in one handler), "Mark all available" (bulk update), and a pure `addHire` helper.
+
+**Use when:** The new state depends on the old state, or one handler/async callback performs several updates.
+**Avoid:** Side effects or mutation inside updaters, mixing direct and functional styles in one handler.
+
+**Common mistakes:**
+- Several `setX(x + 1)` calls expecting an accumulated result.
+- Looping `setItems([...items, item])` (only the last item survives).
+- Side effects in updater functions (StrictMode runs them twice).
+- Expecting one render per `setState` call.
+- Reading state immediately after calling the setter.
+
+**Interview Q&A:**
+1. *When do you need a functional update?* When the next state depends on the previous state, especially for multiple updates in one handler or inside async callbacks and timers. `setCount(c => c + 1)` always uses the latest queued value.
+2. *What is automatic batching?* React groups multiple state updates into one re-render. Since React 18 this works everywhere (event handlers, promises, timeouts, native events), not only inside React event handlers.
+3. *Why must updater functions be pure?* React may call them more than once (StrictMode does so in development) and relies on the same input giving the same output. Side effects or mutation inside them cause bugs and duplicate work.

@@ -7,6 +7,12 @@ import SearchInput from './components/common/SearchInput.jsx'
 import EmployeeList from './components/employees/EmployeeList.jsx'
 import { employees as initialEmployees, newHires } from './data/employees.js'
 
+// Pure helper: returns the same list if the hire already exists
+function addHire(list, hire) {
+  if (list.some((employee) => employee.id === hire.id)) return list
+  return [...list, hire]
+}
+
 function App() {
   const [employees, setEmployees] = useState(initialEmployees)
   const [searchText, setSearchText] = useState('')
@@ -20,9 +26,11 @@ function App() {
   const selectedEmployee =
     employees.find((employee) => employee.id === selectedEmployeeId) ?? null
 
-  const nextHire = newHires.find(
+  const missingHires = newHires.filter(
     (hire) => !employees.some((employee) => employee.id === hire.id)
   )
+  const nextHire = missingHires[0]
+  const onLeaveCount = employees.filter((employee) => employee.onLeave).length
 
   function handleViewProfile(employeeId) {
     setSelectedEmployeeId(employeeId)
@@ -33,8 +41,8 @@ function App() {
   }
 
   function handleToggleLeave(employeeId) {
-    setEmployees(
-      employees.map((employee) =>
+    setEmployees((prev) =>
+      prev.map((employee) =>
         employee.id === employeeId
           ? { ...employee, onLeave: !employee.onLeave }
           : employee
@@ -43,16 +51,31 @@ function App() {
   }
 
   function handleRemove(employeeId) {
-    setEmployees(employees.filter((employee) => employee.id !== employeeId))
+    setEmployees((prev) => prev.filter((employee) => employee.id !== employeeId))
   }
 
   function handleAddSampleHire() {
     if (!nextHire) return
-    setEmployees([...employees, nextHire])
+    setEmployees((prev) => addHire(prev, nextHire))
+  }
+
+  function handleAddAllHires() {
+    // Several updates in ONE handler: batched into a single re-render
+    newHires.forEach((hire) => {
+      setEmployees((prev) => addHire(prev, hire))
+    })
+  }
+
+  function handleMarkAllAvailable() {
+    setEmployees((prev) =>
+      prev.map((e) =>
+        employee.onLeave ? { ...employee, onLeave: false } : employee
+      )
+    )
   }
 
   return (
-    <Layout title="Dashboard" userName="Priya Sharma">
+    <Layout title="Dashboard" userName="Ram Sharma">
       <div className="dashboard-grid">
         <Card title="Task Overview">
           <p>Task statistics will appear here.</p>
@@ -88,9 +111,21 @@ function App() {
               placeholder="Search by name..."
               onSearchChange={handleSearchChange}
             />
-            <Button onClick={handleAddSampleHire}>
-              {nextHire ? `Add ${nextHire.name}` : 'No more sample hires'}
-            </Button>
+            <div className="toolbar__actions">
+              {onLeaveCount > 0 && (
+                <Button variant="secondary" onClick={handleMarkAllAvailable}>
+                  Mark all available ({onLeaveCount})
+                </Button>
+              )}
+              {missingHires.length > 1 && (
+                <Button variant="secondary" onClick={handleAddAllHires}>
+                  Add all {missingHires.length} hires
+                </Button>
+              )}
+              <Button onClick={handleAddSampleHire}>
+                {nextHire ? `Add ${nextHire.name}` : 'No more sample hires'}
+              </Button>
+            </div>
           </div>
           <EmployeeList
             employees={visibleEmployees}

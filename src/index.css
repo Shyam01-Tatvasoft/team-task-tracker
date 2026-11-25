@@ -267,3 +267,9 @@ body {
 .selected-employee .btn {
   margin-top: 8px;
 }
+
+.toolbar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
