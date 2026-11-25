@@ -5,7 +5,11 @@ import Button from './components/common/Button.jsx'
 import Badge from './components/common/Badge.jsx'
 import SearchInput from './components/common/SearchInput.jsx'
 import EmployeeList from './components/employees/EmployeeList.jsx'
+import TaskStats from './components/tasks/TaskStats.jsx'
+import TaskList from './components/tasks/TaskList.jsx'
 import { employees as initialEmployees, newHires } from './data/employees.js'
+import { tasks as initialTasks } from './data/tasks.js'
+import { getNextStatus } from './utils/taskStatus.js'
 
 // Pure helper: returns the same list if the hire already exists
 function addHire(list, hire) {
@@ -15,6 +19,7 @@ function addHire(list, hire) {
 
 function App() {
   const [employees, setEmployees] = useState(initialEmployees)
+  const [tasks, setTasks] = useState(initialTasks)
   const [searchText, setSearchText] = useState('')
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null)
 
@@ -60,7 +65,6 @@ function App() {
   }
 
   function handleAddAllHires() {
-    // Several updates in ONE handler: batched into a single re-render
     newHires.forEach((hire) => {
       setEmployees((prev) => addHire(prev, hire))
     })
@@ -68,17 +72,27 @@ function App() {
 
   function handleMarkAllAvailable() {
     setEmployees((prev) =>
-      prev.map((e) =>
+      prev.map((employee) =>
         employee.onLeave ? { ...employee, onLeave: false } : employee
       )
     )
   }
 
+  function handleAdvanceStatus(taskId) {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId
+          ? { ...task, status: getNextStatus(task.status) ?? task.status }
+          : task
+      )
+    )
+  }
+
   return (
-    <Layout title="Dashboard" userName="Ram Sharma">
+    <Layout title="Dashboard" userName="Priya Sharma">
       <div className="dashboard-grid">
         <Card title="Task Overview">
-          <p>Task statistics will appear here.</p>
+          <TaskStats tasks={tasks} />
         </Card>
         <Card title="Team Activity">
           <p>Recent activity will appear here.</p>
@@ -104,6 +118,17 @@ function App() {
           )}
         </Card>
       </div>
+
+      <div className="dashboard-section">
+        <Card title="Tasks">
+          <TaskList
+            tasks={tasks}
+            employees={employees}
+            onAdvanceStatus={handleAdvanceStatus}
+          />
+        </Card>
+      </div>
+
       <div className="dashboard-section">
         <Card title="Team Members">
           <div className="toolbar">
