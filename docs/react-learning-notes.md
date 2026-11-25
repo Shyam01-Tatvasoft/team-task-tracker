@@ -136,3 +136,28 @@
 1. *What is a SyntheticEvent?* React's cross-browser wrapper around native events with the same interface (`target`, `preventDefault`, etc.). Since React 17 events are not pooled.
 2. *How does a child send data to its parent?* The parent passes a function via props; the child calls it with the data as arguments.
 3. *Why `onClick={() => fn(id)}` instead of `onClick={fn(id)}`?* The latter calls `fn` during render and passes its return value as the handler. The arrow function defers the call until the click.
+
+## Phase 2: State Management
+
+### Step 1: useState Basics
+
+**What:** `useState` lets a component remember data between renders. Calling the setter schedules a re-render with the new value.
+
+**How it works:** `const [value, setValue] = useState(initial)`. The initial value is used on the first render only. Each render sees state as a snapshot. `setValue` does not change the current variable; the next render gets the new value. React keeps the state per component instance, tracked by hook call order.
+
+**Implemented:** `searchText` (filters employees) and `selectedEmployeeId` (drives "Selected Employee" card) in `App`. Moved `SearchInput` out of `EmployeeList` so it isn't unmounted by the empty state.
+
+**Use when:** Data changes over time and the UI must react to it.
+**Avoid:** State for values you can compute from other state or props, mutating variables directly, hooks inside conditions or loops.
+
+**Common mistakes:**
+- Assigning to the variable instead of calling the setter.
+- Expecting the new value right after calling the setter (snapshot).
+- Storing a whole object when an id is enough (can go stale).
+- Calling hooks conditionally.
+- Unmounting an input by returning early from its parent.
+
+**Interview Q&A:**
+1. *Why doesn't `setCount(count + 1); console.log(count)` show the new value?* State is a snapshot for the current render. The setter schedules a re-render, and the new value only appears in the next render's call to `useState`.
+2. *What happens if you call the setter with the same value?* React bails out using `Object.is` comparison and skips re-rendering the children (it may still call the component once more before bailing).
+3. *Why can't hooks be called conditionally?* React identifies each hook by its call order within a component. A conditional call changes the order between renders, so state gets matched to the wrong hook.

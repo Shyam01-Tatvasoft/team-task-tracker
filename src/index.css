@@ -254,3 +254,16 @@ body {
 .employee-card__actions {
   margin-top: 14px;
 }
+
+.selected-employee p {
+  margin: 0 0 6px;
+}
+
+.selected-employee__name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.selected-employee .btn {
+  margin-top: 8px;
+}
