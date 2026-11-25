@@ -2,7 +2,17 @@ import { Fragment } from 'react'
 import Badge from '../common/Badge.jsx'
 import Button from '../common/Button.jsx'
 
-function EmployeeCard({ id, name, role, department, email, onLeave, onViewProfile }) {
+function EmployeeCard({
+  id,
+  name,
+  role,
+  department,
+  email,
+  onLeave,
+  onViewProfile,
+  onToggleLeave,
+  onRemove,
+}) {
   const details = [
     { label: 'Department', value: department },
     { label: 'Email', value: email },
@@ -25,6 +35,12 @@ function EmployeeCard({ id, name, role, department, email, onLeave, onViewProfil
       <div className="employee-card__actions">
         <Button variant="secondary" onClick={() => onViewProfile(id)}>
           View profile
+        </Button>
+        <Button variant="secondary" onClick={() => onToggleLeave(id)}>
+          {onLeave ? 'Mark available' : 'Mark on leave'}
+        </Button>
+        <Button variant="danger" onClick={() => onRemove(id)}>
+          Remove
         </Button>
       </div>
     </article>

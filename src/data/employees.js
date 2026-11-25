@@ -7,3 +7,9 @@ export const employees = [
     { id: 106, name: 'Neha Verma', role: 'Product Designer', department: 'Design', email: 'neha.verma@acme.com', onLeave: false  },
     { id: 107, name: 'Arjun Nair', role: 'DevOps Engineer', department: 'Infrastructure', email: 'arjun.nair@acme.com', onLeave: false  },
   ]
+
+  export const newHires = [
+    { id: 107, name: 'Sneha Kulkarni', role: 'Data Analyst', department: 'Analytics', email: 'sneha.kulkarni@acme.com', onLeave: false },
+    { id: 108, name: 'Vikram Singh', role: 'Support Engineer', department: 'Customer Success', email: 'vikram.singh@acme.com', onLeave: false },
+    { id: 109, name: 'Meera Joshi', role: 'HR Executive', department: 'People Operations', email: 'meera.joshi@acme.com', onLeave: false },
+  ]

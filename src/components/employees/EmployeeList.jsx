@@ -5,6 +5,8 @@ function EmployeeList({
   employees,
   isLoading = false,
   onViewProfile,
+  onToggleLeave,
+  onRemove,
   emptyTitle = 'No team members yet',
   emptyMessage = 'Add an employee to get started.',
 }) {
@@ -34,6 +36,8 @@ function EmployeeList({
             email={employee.email}
             onLeave={employee.onLeave}
             onViewProfile={onViewProfile}
+            onToggleLeave={onToggleLeave}
+            onRemove={onRemove}
           />
         ))}
       </div>

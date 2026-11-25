@@ -161,3 +161,26 @@
 1. *Why doesn't `setCount(count + 1); console.log(count)` show the new value?* State is a snapshot for the current render. The setter schedules a re-render, and the new value only appears in the next render's call to `useState`.
 2. *What happens if you call the setter with the same value?* React bails out using `Object.is` comparison and skips re-rendering the children (it may still call the component once more before bailing).
 3. *Why can't hooks be called conditionally?* React identifies each hook by its call order within a component. A conditional call changes the order between renders, so state gets matched to the wrong hook.
+
+### Step 2: State Immutability (Objects and Arrays)
+
+**What:** Never mutate state. Always set a new object or array so React sees a new reference.
+
+**How it works:** React compares old and new state with `Object.is`. Mutating in place keeps the same reference, so React skips the re-render. Spread (`...`), `map`, `filter` and `slice` return new copies; `push`, `splice`, `sort`, `reverse` and direct assignment mutate.
+
+**Implemented:** `employees` is now state in `App`. Toggle on leave (`map` + `{ ...e, onLeave: !e.onLeave }`), remove (`filter`), add sample hire (`[...employees, hire]`).
+
+**Use when:** Any state that is an object or array.
+**Avoid:** Mutating methods on state, assuming spread is a deep copy.
+
+**Common mistakes:**
+- `push` / assignment then `setState(sameReference)`: no re-render.
+- `setState(arr.sort())`: `sort` mutates and returns the same array.
+- Shallow spread for nested updates (inner objects are still shared).
+- Copying with `const copy = arr` (copies reference only).
+- Mutation that "works" only because another update triggers a render.
+
+**Interview Q&A:**
+1. *Why must React state be immutable?* React detects changes by reference comparison. In-place mutation keeps the reference, so React can't tell anything changed and skips rendering. Immutability also makes memoization and effect dependencies reliable.
+2. *How do you update one item inside an array in state?* Use `map`: return `{ ...item, field: newValue }` for the matching id and the original item for the others. `setItems(items.map(...))`.
+3. *Is the spread operator a deep copy?* No, it is shallow: it copies top-level properties and shares nested objects. For nested updates, spread each level you change (or use a library like Immer).
