@@ -10,7 +10,7 @@ import TaskList from './components/tasks/TaskList.jsx'
 import TaskFilters from './components/tasks/TaskFilters.jsx'
 import { employees as initialEmployees, newHires } from './data/employees.js'
 import { tasks as initialTasks } from './data/tasks.js'
-import { getNextStatus } from './utils/taskStatus.js'
+import { getNextStatus, sortTasks, SORT_OPTIONS } from './utils/taskStatus.js'
 
 // Pure helper: returns the same list if the hire already exists
 function addHire(list, hire) {
@@ -25,6 +25,7 @@ function App() {
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null)
   const [statusFilter, setStatusFilter] = useState('all')
   const [priorityFilter, setPriorityFilter] = useState('all')
+  const [sortBy, setSortBy] = useState('due')
 
   // ---- Derived values: computed every render, never stored in state ----
   const query = searchText.trim().toLowerCase()
@@ -41,20 +42,20 @@ function App() {
   const nextHire = missingHires[0]
   const onLeaveCount = employees.filter((employee) => employee.onLeave).length
 
-  const visibleTasks = tasks.filter(
-    (task) =>
-      (statusFilter === 'all' || task.status === statusFilter) &&
-      (priorityFilter === 'all' || task.priority === priorityFilter)
+  const visibleTasks = sortTasks(
+    tasks.filter(
+      (task) =>
+        (statusFilter === 'all' || task.status === statusFilter) &&
+        (priorityFilter === 'all' || task.priority === priorityFilter)
+    ),
+    sortBy
   )
+
   const hasActiveFilters = statusFilter !== 'all' || priorityFilter !== 'all'
   // ----------------------------------------------------------------------
 
   function handleViewProfile(employeeId) {
     setSelectedEmployeeId(employeeId)
-  }
-
-  function handleSearchChange(text) {
-    setSearchText(text)
   }
 
   function handleToggleLeave(employeeId) {
@@ -146,14 +147,26 @@ function App() {
             onPriorityChange={setPriorityFilter}
           />
           <div className="task-summary">
-            <span>
-              Showing {visibleTasks.length} of {tasks.length} tasks
-            </span>
-            {hasActiveFilters && (
-              <Button variant="secondary" onClick={handleClearFilters}>
-                Clear filters
-              </Button>
-            )}
+            <span>Showing {visibleTasks.length} of {tasks.length} tasks</span>
+            <div className="task-summary__controls">
+              <select
+                className="sort-select"
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value)}
+                aria-label="Sort tasks"
+              >
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    Sort: {option.label}
+                  </option>
+                ))}
+              </select>
+              {hasActiveFilters && (
+                <Button variant="secondary" onClick={handleClearFilters}>
+                  Clear filters
+                </Button>
+              )}
+            </div>
           </div>
           <TaskList
             tasks={visibleTasks}
@@ -174,10 +187,18 @@ function App() {
       <div className="dashboard-section">
         <Card title="Team Members">
           <div className="toolbar">
-            <SearchInput
-              placeholder="Search by name..."
-              onSearchChange={handleSearchChange}
-            />
+          <div className="search-row">
+              <SearchInput
+                placeholder="Search by name..."
+                value={searchText}
+                onChange={setSearchText}
+              />
+              {searchText && (
+                <Button variant="secondary" onClick={() => setSearchText('')}>
+                  Clear
+                </Button>
+              )}
+            </div>
             <div className="toolbar__actions">
               {onLeaveCount > 0 && (
                 <Button variant="secondary" onClick={handleMarkAllAvailable}>

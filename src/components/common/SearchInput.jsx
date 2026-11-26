@@ -1,14 +1,11 @@
-function SearchInput({ placeholder, onSearchChange }) {
-    function handleChange(event) {
-      onSearchChange(event.target.value)
-    }
-  
+function SearchInput({ value, onChange, placeholder }) {
     return (
       <input
         type="search"
         className="search-input"
         placeholder={placeholder}
-        onChange={handleChange}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
       />
     )
   }

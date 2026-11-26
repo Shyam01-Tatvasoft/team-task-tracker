@@ -207,3 +207,17 @@
 1. *When do you need a functional update?* When the next state depends on the previous state, especially for multiple updates in one handler or inside async callbacks and timers. `setCount(c => c + 1)` always uses the latest queued value.
 2. *What is automatic batching?* React groups multiple state updates into one re-render. Since React 18 this works everywhere (event handlers, promises, timeouts, native events), not only inside React event handlers.
 3. *Why must updater functions be pure?* React may call them more than once (StrictMode does so in development) and relies on the same input giving the same output. Side effects or mutation inside them cause bugs and duplicate work.
+
+### Step 6: Controlled Components and Sorting
+
+- **Controlled input:** `value={state}` + `onChange={e => setState(e.target.value)}`. React owns the value, so you can reset or transform it. Uncontrolled inputs keep their value in the DOM.
+- **Sorting:** derive it during render and sort a copy (`[...list].sort`), since `sort` mutates.
+- Order of derivation: filter, then sort, then paginate.
+
+### Phase 2 Interview Q&A
+1. Why can't `setCount(count + 1)` three times add 3? Each call uses the same snapshot; use `setCount(c => c + 1)`.
+2. Why must state be immutable? React detects changes by reference, so in-place mutation looks like no change.
+3. Where should shared state live? In the closest common parent; pass data down, callbacks up.
+4. What is derived state? Anything computable from state or props. Compute it in render and don't store it.
+5. Controlled vs uncontrolled input? Controlled: state drives the value. Uncontrolled: the DOM holds it, read via ref or on submit.
+6. Why does `[...arr].sort()` and not `arr.sort()`? `sort` mutates the array in place and returns the same reference.

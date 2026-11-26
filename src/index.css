@@ -421,3 +421,18 @@ body {
   font-size: 13px;
   color: #7b8794;
 }
+
+.task-summary__controls,
+.search-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.sort-select {
+  padding: 6px 10px;
+  border: 1px solid #cbd2d9;
+  border-radius: 6px;
+  font-size: 13px;
+  background-color: #fff;
+}
