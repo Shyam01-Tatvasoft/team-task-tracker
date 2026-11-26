@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Layout from './components/layout/Layout.jsx'
 import Card from './components/common/Card.jsx'
 import Button from './components/common/Button.jsx'
@@ -8,9 +8,12 @@ import EmployeeList from './components/employees/EmployeeList.jsx'
 import TaskStats from './components/tasks/TaskStats.jsx'
 import TaskList from './components/tasks/TaskList.jsx'
 import TaskFilters from './components/tasks/TaskFilters.jsx'
-import { employees as initialEmployees, newHires } from './data/employees.js'
-import { tasks as initialTasks } from './data/tasks.js'
+// import { employees as initialEmployees, newHires } from './data/employees.js'
+// import { tasks as initialTasks } from './data/tasks.js'
 import { getNextStatus, sortTasks, SORT_OPTIONS } from './utils/taskStatus.js'
+import EmptyState from './components/common/EmptyState.jsx'
+import { newHires } from './data/employees.js'
+import { fetchEmployees, fetchTasks } from './services/api.js'
 
 // Pure helper: returns the same list if the hire already exists
 function addHire(list, hire) {
@@ -19,8 +22,12 @@ function addHire(list, hire) {
 }
 
 function App() {
-  const [employees, setEmployees] = useState(initialEmployees)
-  const [tasks, setTasks] = useState(initialTasks)
+  const [employees, setEmployees] = useState([])
+  const [tasks, setTasks] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [reloadCount, setReloadCount] = useState(0)
+  const [isOnline, setIsOnline] = useState(navigator.onLine)
   const [searchText, setSearchText] = useState('')
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null)
   const [statusFilter, setStatusFilter] = useState('all')
@@ -52,6 +59,46 @@ function App() {
   )
 
   const hasActiveFilters = statusFilter !== 'all' || priorityFilter !== 'all'
+
+  // 1. Load data on mount (and again when reloadCount changes)
+  useEffect(() => {
+    let ignore = false
+
+    Promise.all([fetchEmployees(), fetchTasks()])
+      .then(([employeeData, taskData]) => {
+        if (ignore) return
+        setEmployees(employeeData)
+        setTasks(taskData)
+      })
+      .catch((err) => {
+        if (!ignore) setError(err.message)
+      })
+      .finally(() => {
+        if (!ignore) setIsLoading(false)
+      })
+
+    return () => {
+      ignore = true // cleanup: discard results from an outdated run
+    }
+  }, [reloadCount])
+
+  // 2. Keep the tab title in sync (no cleanup needed)
+  const openTaskCount = tasks.filter((task) => task.status !== 'done').length
+  useEffect(() => {
+    document.title = `(${openTaskCount}) Team Task Tracker`
+  }, [openTaskCount])
+
+  // 3. Subscribe to browser events (cleanup is required)
+  useEffect(() => {
+    const goOnline = () => setIsOnline(true)
+    const goOffline = () => setIsOnline(false)
+    window.addEventListener('online', goOnline)
+    window.addEventListener('offline', goOffline)
+    return () => {
+      window.removeEventListener('online', goOnline)
+      window.removeEventListener('offline', goOffline)
+    }
+  }, [])
   // ----------------------------------------------------------------------
 
   function handleViewProfile(employeeId) {
@@ -106,8 +153,34 @@ function App() {
     setPriorityFilter('all')
   }
 
+  function handleRetry() {
+    setIsLoading(true)
+    setError(null)
+    setReloadCount((count) => count + 1) // changes the dependency, so effect 1 re-runs
+  }
+  
+  if (isLoading) {
+    return (
+      <Layout title="Dashboard" userName="Priya Sharma">
+        <p className="loading-text">Loading dashboard...</p>
+      </Layout>
+    )
+  }
+  
+  if (error) {
+    return (
+      <Layout title="Dashboard" userName="Priya Sharma">
+        <EmptyState title="Could not load data" message={error} />
+        <Button onClick={handleRetry}>Retry</Button>
+      </Layout>
+    )
+  }
+
   return (
-    <Layout title="Dashboard" userName="Priya Sharma">
+    <Layout title="Dashboard" userName="Shyam Pankhaniya">
+      {!isOnline && (
+        <div className="offline-banner">You are offline. Changes stay local.</div>
+      )}
       <div className="dashboard-grid">
         <Card title="Task Overview">
           <TaskStats tasks={tasks} />
