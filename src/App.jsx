@@ -7,6 +7,7 @@ import SearchInput from './components/common/SearchInput.jsx'
 import EmployeeList from './components/employees/EmployeeList.jsx'
 import TaskStats from './components/tasks/TaskStats.jsx'
 import TaskList from './components/tasks/TaskList.jsx'
+import TaskFilters from './components/tasks/TaskFilters.jsx'
 import { employees as initialEmployees, newHires } from './data/employees.js'
 import { tasks as initialTasks } from './data/tasks.js'
 import { getNextStatus } from './utils/taskStatus.js'
@@ -22,7 +23,10 @@ function App() {
   const [tasks, setTasks] = useState(initialTasks)
   const [searchText, setSearchText] = useState('')
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(null)
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [priorityFilter, setPriorityFilter] = useState('all')
 
+  // ---- Derived values: computed every render, never stored in state ----
   const query = searchText.trim().toLowerCase()
   const visibleEmployees = employees.filter((employee) =>
     employee.name.toLowerCase().includes(query)
@@ -36,6 +40,14 @@ function App() {
   )
   const nextHire = missingHires[0]
   const onLeaveCount = employees.filter((employee) => employee.onLeave).length
+
+  const visibleTasks = tasks.filter(
+    (task) =>
+      (statusFilter === 'all' || task.status === statusFilter) &&
+      (priorityFilter === 'all' || task.priority === priorityFilter)
+  )
+  const hasActiveFilters = statusFilter !== 'all' || priorityFilter !== 'all'
+  // ----------------------------------------------------------------------
 
   function handleViewProfile(employeeId) {
     setSelectedEmployeeId(employeeId)
@@ -88,6 +100,11 @@ function App() {
     )
   }
 
+  function handleClearFilters() {
+    setStatusFilter('all')
+    setPriorityFilter('all')
+  }
+
   return (
     <Layout title="Dashboard" userName="Priya Sharma">
       <div className="dashboard-grid">
@@ -121,10 +138,35 @@ function App() {
 
       <div className="dashboard-section">
         <Card title="Tasks">
-          <TaskList
+          <TaskFilters
             tasks={tasks}
+            statusFilter={statusFilter}
+            priorityFilter={priorityFilter}
+            onStatusChange={setStatusFilter}
+            onPriorityChange={setPriorityFilter}
+          />
+          <div className="task-summary">
+            <span>
+              Showing {visibleTasks.length} of {tasks.length} tasks
+            </span>
+            {hasActiveFilters && (
+              <Button variant="secondary" onClick={handleClearFilters}>
+                Clear filters
+              </Button>
+            )}
+          </div>
+          <TaskList
+            tasks={visibleTasks}
             employees={employees}
             onAdvanceStatus={handleAdvanceStatus}
+            emptyTitle={
+              tasks.length === 0 ? 'No tasks yet' : 'No tasks match these filters'
+            }
+            emptyMessage={
+              tasks.length === 0
+                ? 'Tasks you create will appear here.'
+                : 'Try a different status or priority.'
+            }
           />
         </Card>
       </div>

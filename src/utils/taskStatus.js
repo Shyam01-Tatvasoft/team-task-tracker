@@ -23,3 +23,13 @@ export function getNextStatus(status) {
   const index = STATUS_FLOW.indexOf(status)
   return STATUS_FLOW[index + 1] ?? null
 }
+
+export const STATUS_FILTERS = ['all', 'todo', 'in-progress', 'done']
+
+export const PRIORITY_FILTERS = ['all', 'high', 'medium', 'low']
+
+export const PRIORITY_LABELS = {
+  low: 'Low',
+  medium: 'Medium',
+  high: 'High',
+}

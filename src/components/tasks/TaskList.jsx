@@ -1,11 +1,15 @@
 import TaskItem from './TaskItem.jsx'
 import EmptyState from '../common/EmptyState.jsx'
 
-function TaskList({ tasks, employees, onAdvanceStatus }) {
+function TaskList({
+  tasks,
+  employees,
+  onAdvanceStatus,
+  emptyTitle = 'No tasks yet',
+  emptyMessage = 'Tasks you create will appear here.',
+}) {
   if (tasks.length === 0) {
-    return (
-      <EmptyState title="No tasks yet" message="Tasks you create will appear here." />
-    )
+    return <EmptyState title={emptyTitle} message={emptyMessage} />
   }
 
   return (

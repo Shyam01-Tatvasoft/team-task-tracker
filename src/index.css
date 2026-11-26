@@ -356,3 +356,68 @@ body {
 .task-item .badge {
   margin-bottom: 0;
 }
+
+.task-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 32px;
+  margin-bottom: 12px;
+}
+
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group__label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #7b8794;
+  text-transform: uppercase;
+}
+
+.filter-group__options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #cbd2d9;
+  background-color: #fff;
+  color: #3e4c59;
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chip:hover {
+  background-color: #f5f7fa;
+}
+
+.chip--active {
+  background-color: #3e7bfa;
+  border-color: #3e7bfa;
+  color: #fff;
+}
+
+.chip__count {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.task-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #7b8794;
+}
