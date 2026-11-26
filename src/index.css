@@ -436,3 +436,28 @@ body {
   font-size: 13px;
   background-color: #fff;
 }
+
+.quick-find {
+  margin-bottom: 16px;
+}
+
+.quick-find .search-input {
+  margin-bottom: 8px;
+}
+
+.quick-find__results,
+.activity-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+}
+
+.activity-list li {
+  margin-bottom: 6px;
+}
+
+.last-updated {
+  margin: 12px 0 0;
+  font-size: 12px;
+  color: #7b8794;
+}

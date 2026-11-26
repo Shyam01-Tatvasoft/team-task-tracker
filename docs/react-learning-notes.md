@@ -221,3 +221,23 @@
 4. What is derived state? Anything computable from state or props. Compute it in render and don't store it.
 5. Controlled vs uncontrolled input? Controlled: state drives the value. Uncontrolled: the DOM holds it, read via ref or on submit.
 6. Why does `[...arr].sort()` and not `arr.sort()`? `sort` mutates the array in place and returns the same reference.
+
+## Phase 3: useEffect and Lifecycle
+
+### Steps 1-2 summary
+- `useEffect(fn, deps)` runs after render to sync with external systems (network, timers, listeners, `document.title`). It is not for deriving data or reacting to events.
+- Deps: `[]` = mount only; `[a]` = when `a` changes; omitted = every render. Include every reactive value you read.
+- Cleanup runs before the next effect run and on unmount. Always clean up listeners, timers, subscriptions and in-flight requests.
+- Strict Mode (dev only) runs mount → cleanup → mount. If that breaks your app, your cleanup is missing.
+- Race conditions: abort in cleanup (`AbortController`) or use an `ignore` flag so stale responses can't set state.
+- Stale closures: callbacks capture the render's values. Use functional updates (`setX(prev => ...)`) or correct deps.
+- Don't set state synchronously inside an effect when you can derive the value or set it in the event handler.
+- Never pass an `async` function directly to `useEffect`; define an inner async function or use `.then`.
+
+### Phase 3 Interview Q&A
+1. When does `useEffect` run and what does the cleanup do? After the render is committed. Cleanup runs before the next effect and on unmount to undo the previous effect (remove listeners, clear timers, abort requests).
+2. What does the dependency array do? It tells React when to re-run the effect: when any listed value changed (`Object.is`). `[]` runs once; no array runs after every render.
+3. Why does an effect run twice in development? Strict Mode simulates unmount and remount to expose missing cleanups. Production runs once.
+4. How do you avoid race conditions when fetching on input change? Abort the previous request in cleanup (`AbortController`) or ignore its result with a flag, so only the latest request can update state.
+5. What is a stale closure in an effect? A callback that captured old state or props because the effect did not re-run with fresh values. Fix with correct dependencies or functional updates.
+6. When should you NOT use `useEffect`? Deriving data from state/props (compute in render), responding to user events (use the handler), and resetting state on prop change (use `key`).

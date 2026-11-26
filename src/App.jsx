@@ -8,12 +8,13 @@ import EmployeeList from './components/employees/EmployeeList.jsx'
 import TaskStats from './components/tasks/TaskStats.jsx'
 import TaskList from './components/tasks/TaskList.jsx'
 import TaskFilters from './components/tasks/TaskFilters.jsx'
-// import { employees as initialEmployees, newHires } from './data/employees.js'
-// import { tasks as initialTasks } from './data/tasks.js'
 import { getNextStatus, sortTasks, SORT_OPTIONS } from './utils/taskStatus.js'
 import EmptyState from './components/common/EmptyState.jsx'
 import { newHires } from './data/employees.js'
-import { fetchEmployees, fetchTasks } from './services/api.js'
+import { fetchEmployees, fetchTasks, subscribeToNotifications } from './services/api.js'
+import TaskSearch from './components/tasks/TaskSearch.jsx'
+import LastUpdated from './components/common/LastUpdated.jsx'
+
 
 // Pure helper: returns the same list if the hire already exists
 function addHire(list, hire) {
@@ -33,6 +34,7 @@ function App() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [priorityFilter, setPriorityFilter] = useState('all')
   const [sortBy, setSortBy] = useState('due')
+  const [notifications, setNotifications] = useState([])
 
   // ---- Derived values: computed every render, never stored in state ----
   const query = searchText.trim().toLowerCase()
@@ -98,6 +100,14 @@ function App() {
       window.removeEventListener('online', goOnline)
       window.removeEventListener('offline', goOffline)
     }
+  }, [])
+
+  // 4. Subscribe to live notifications
+  useEffect(() => {
+    const unsubscribe = subscribeToNotifications((notification) => {
+      setNotifications((prev) => [notification, ...prev].slice(0, 5))
+    })
+    return unsubscribe
   }, [])
   // ----------------------------------------------------------------------
 
@@ -184,9 +194,18 @@ function App() {
       <div className="dashboard-grid">
         <Card title="Task Overview">
           <TaskStats tasks={tasks} />
+          <LastUpdated />
         </Card>
         <Card title="Team Activity">
-          <p>Recent activity will appear here.</p>
+          {notifications.length === 0 ? (
+            <p>Waiting for activity...</p>
+          ) : (
+            <ul className="activity-list">
+              {notifications.map((item) => (
+                <li key={item.id}>{item.message}</li>
+              ))}
+            </ul>
+          )}
         </Card>
         <Card title="Selected Employee">
           {selectedEmployee ? (
