@@ -7,6 +7,8 @@ function TaskList({
   onAdvanceStatus,
   emptyTitle = 'No tasks yet',
   emptyMessage = 'Tasks you create will appear here.',
+  onEdit,
+  onDelete,
 }) {
   if (tasks.length === 0) {
     return <EmptyState title={emptyTitle} message={emptyMessage} />
@@ -27,6 +29,8 @@ function TaskList({
             assigneeName={assignee ? assignee.name : 'Unassigned'}
             dueDate={task.dueDate}
             onAdvanceStatus={onAdvanceStatus}
+            onEdit={onEdit}
+            onDelete={onDelete}
           />
         )
       })}

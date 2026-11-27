@@ -15,6 +15,8 @@ function TaskItem({
   assigneeName,
   dueDate,
   onAdvanceStatus,
+  onEdit,
+  onDelete,
 }) {
   const nextStatus = getNextStatus(status)
 
@@ -30,11 +32,19 @@ function TaskItem({
         <Badge variant={PRIORITY_VARIANTS[priority]}>{priority}</Badge>
         <Badge variant={STATUS_VARIANTS[status]}>{STATUS_LABELS[status]}</Badge>
       </div>
-      {nextStatus && (
-        <Button variant="secondary" onClick={() => onAdvanceStatus(id)}>
-          Move to {STATUS_LABELS[nextStatus]}
+      <div className="task-item__actions">
+        {nextStatus && (
+          <Button variant="secondary" onClick={() => onAdvanceStatus(id)}>
+            Move to {STATUS_LABELS[nextStatus]}
+          </Button>
+        )}
+        <Button variant="secondary" onClick={() => onEdit(id)}>
+          Edit
         </Button>
-      )}
+        <Button variant="danger" onClick={() => onDelete(id)}>
+          Delete
+        </Button>
+      </div>
     </li>
   )
 }

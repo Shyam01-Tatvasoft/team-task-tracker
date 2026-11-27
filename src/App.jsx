@@ -14,6 +14,7 @@ import { newHires } from './data/employees.js'
 import { fetchEmployees, fetchTasks, subscribeToNotifications } from './services/api.js'
 import TaskSearch from './components/tasks/TaskSearch.jsx'
 import LastUpdated from './components/common/LastUpdated.jsx'
+import TaskForm from './components/tasks/TaskForm.jsx'
 
 
 // Pure helper: returns the same list if the hire already exists
@@ -35,6 +36,8 @@ function App() {
   const [priorityFilter, setPriorityFilter] = useState('all')
   const [sortBy, setSortBy] = useState('due')
   const [notifications, setNotifications] = useState([])
+  // null = form closed, 'new' = creating, a number = editing that task id
+  const [formTarget, setFormTarget] = useState(null)
 
   // ---- Derived values: computed every render, never stored in state ----
   const query = searchText.trim().toLowerCase()
@@ -62,6 +65,11 @@ function App() {
 
   const hasActiveFilters = statusFilter !== 'all' || priorityFilter !== 'all'
 
+  const editingTask =
+  typeof formTarget === 'number'
+    ? tasks.find((task) => task.id === formTarget) ?? null
+    : null
+  
   // 1. Load data on mount (and again when reloadCount changes)
   useEffect(() => {
     let ignore = false
@@ -163,6 +171,27 @@ function App() {
     setPriorityFilter('all')
   }
 
+  function handleSaveTask(values) {
+    if (formTarget === 'new') {
+      setTasks((prev) => {
+        const nextId = Math.max(0, ...prev.map((task) => task.id)) + 1
+        return [...prev, { id: nextId, ...values }]
+      })
+    } else {
+      setTasks((prev) =>
+        prev.map((task) => (task.id === formTarget ? { ...task, ...values } : task))
+      )
+    }
+    setFormTarget(null)
+  }
+  
+  function handleDeleteTask(taskId) {
+    // window.confirm is a placeholder; Phase 10 replaces it with a reusable dialog
+    if (!window.confirm('Delete this task?')) return
+    setTasks((prev) => prev.filter((task) => task.id !== taskId))
+    if (formTarget === taskId) setFormTarget(null)
+  }
+
   function handleRetry() {
     setIsLoading(true)
     setError(null)
@@ -231,6 +260,20 @@ function App() {
 
       <div className="dashboard-section">
         <Card title="Tasks">
+          {formTarget === null ? (
+            <div className="card-actions">
+              <Button onClick={() => setFormTarget('new')}>+ New task</Button>
+            </div>
+          ) : (
+            <TaskForm
+              key={formTarget}
+              employees={employees}
+              initialTask={editingTask}
+              onSubmit={handleSaveTask}
+              onCancel={() => setFormTarget(null)}
+            />
+          )}
+          <TaskSearch />
           <TaskFilters
             tasks={tasks}
             statusFilter={statusFilter}
@@ -272,6 +315,8 @@ function App() {
                 ? 'Tasks you create will appear here.'
                 : 'Try a different status or priority.'
             }
+            onEdit={setFormTarget}
+            onDelete={handleDeleteTask}
           />
         </Card>
       </div>
